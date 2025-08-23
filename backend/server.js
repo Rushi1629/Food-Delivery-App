@@ -6,8 +6,14 @@ import userRouter from "./routes/userRoute.js";
 import "dotenv/config";
 import cartRouter from "./routes/cartRoute.js";
 import orderRouter from "./routes/orderRoute.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 // App Config
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const port = process.env.port || 4000;
@@ -17,9 +23,6 @@ const port = process.env.port || 4000;
 app.use(express.json());
 app.use(cors());
 
-// DB Connection
-connectDB();
-
 // API Endpoint
 
 app.use("/api/food", foodRouter);
@@ -28,12 +31,24 @@ app.use("/api/user", userRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
+// app.get("/", (req, res) => {
+//   res.send("Hello World!");
+// });
+
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+});
+
+app.use(express.static(path.join(__dirname, "../admin/dist")));
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "../admin/dist/index.html"));
 });
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
+  // DB Connection
+  connectDB();
 });
 
 // mongodb+srv://rushikeshbhor1629:<db_password>@cluster0.mhr1u.mongodb.net/?
